@@ -26,6 +26,13 @@ async function run() {
     await client.connect();
     const incubatorCollection = client.db("IncubatorApp").collection("data");
 
+    // show data on UI url
+    app.get('/add-item', async (req, res)=>{
+        const query = {};
+        const cursor = incubatorCollection.find(query);
+        const users = await cursor.toArray();
+        res.send(users)
+    })
 
 // send data client to backend
 app.post('/add-item', async (req, res)=>{
