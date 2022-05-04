@@ -16,12 +16,21 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hc4xz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-client.connect(err => {
-    console.log('db connected');
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
-});
+
+
+async function run() {
+    try {
+      await client.connect();
+      const incubatorCollection = client.db("IncubatorApp").collection("data");
+
+      const data = {name : "Topu", mail: "abc@gmail.com"}
+      const result = await incubatorCollection.insertOne(data);
+console.log(`user inserted with ${result.insertedId}`);      
+    } finally {
+    //   await client.close();
+    }
+  }
+  run().catch(console.dir);
 
 
 
