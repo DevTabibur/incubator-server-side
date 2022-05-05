@@ -35,12 +35,31 @@ async function run() {
     });
 
     // Find _id using this API
-    app.get('/data/:id', async(req, res)=>{
+    app.get("/data/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id:ObjectId(id)};
+      const query = { _id: ObjectId(id) };
       const result = await incubatorCollection.findOne(query);
-      res.send(result)
-    })
+      res.send(result);
+    });
+
+    //UPDATE Quantity API
+    app.get("/data/:id", async (req, res) => {
+      const id = req.params.id;
+      const updateInfo = req.body;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          quantity: updateInfo.quantity
+        }
+      };
+      const result = await incubatorCollection.updateOne(
+        filter,
+        updatedDoc,
+        updateInfo
+      );
+      res.send(result);
+    });
 
     // // send data client to backend
     // app.post("/add-item", async (req, res) => {
