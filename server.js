@@ -25,6 +25,17 @@ async function run() {
   try {
     await client.connect();
     const incubatorCollection = client.db("IncubatorApp").collection("data");
+    const incubatorBlogCollection = client
+      .db("IncubatorApp")
+      .collection("blogs");
+
+    // get all blogs from backend
+    app.get("/blogs", async (req, res) => {
+      const query = {};
+      const cursor = incubatorBlogCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
     // get all data from backend
     app.get("/data", async (req, res) => {
@@ -43,47 +54,49 @@ async function run() {
     });
 
     //UPDATE Quantity API ==> decreasing by one
-    app.put('/data/:id', async (req, res) => {
-      const id = req.params.id
+    app.put("/data/:id", async (req, res) => {
+      const id = req.params.id;
       const newQuantity = req.body;
       const deliver = newQuantity.quantity - 1;
-      const query = { _id: ObjectId(id) }
+      const query = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updateDoc = {
-          $set: {
-              quantity: deliver
-          }
-      }
-      const result = await incubatorCollection.updateOne(query, updateDoc, options)
+        $set: {
+          quantity: deliver,
+        },
+      };
+      const result = await incubatorCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
       res.send(result);
-  })
+    });
 
-  // add item
-  app.post('/addItem', async (req, res) => {
+    // add item
+    //   app.post('/addItem', async (req, res) => {
 
-    const newItem = req.body;
+    //     const newItem = req.body;
 
-    const result = await collection.insertOne(newItem);
-    res.send(result)
-})
-
-
-    // // send data client to backend
-    // app.post("/add-item", async (req, res) => {
-    //   const newUser = req.body;
-    //   console.log("adding new user", newUser);
-    //   const result = await incubatorCollection.insertOne(newUser);
-    //   res.send(result);
-    // });
-
-    // // delete data from mongodb
-
-    // app.delete('/add-item/:id', async (req, res)=>{
-    //     const id = req.params.id;
-    //     const query = {_id:ObjectId(id)};
-    //     const result = await incubatorCollection.deleteOne(query);
+    //     const result = await collection.insertOne(newItem);
     //     res.send(result)
     // })
+
+    // delete data from mongodb
+    app.delete("/data/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await incubatorCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // send data client to backend
+    app.post("/data", async (req, res) => {
+      const newUser = req.body;
+      console.log("adding new user", newUser);
+      const result = await incubatorCollection.insertOne(newUser);
+      res.send(result);
+    });
   } finally {
     //   await client.close();
   }
