@@ -42,24 +42,31 @@ async function run() {
       res.send(result);
     });
 
-    //UPDATE Quantity API
-    app.get("/data/:id", async (req, res) => {
-      const id = req.params.id;
-      const updateInfo = req.body;
-      const filter = { _id: ObjectId(id) };
+    //UPDATE Quantity API ==> decreasing by one
+    app.put('/data/:id', async (req, res) => {
+      const id = req.params.id
+      const newQuantity = req.body;
+      const deliver = newQuantity.quantity - 1;
+      const query = { _id: ObjectId(id) }
       const options = { upsert: true };
-      const updatedDoc = {
-        $set: {
-          quantity: updateInfo.quantity
-        }
-      };
-      const result = await incubatorCollection.updateOne(
-        filter,
-        updatedDoc,
-        updateInfo
-      );
+      const updateDoc = {
+          $set: {
+              quantity: deliver
+          }
+      }
+      const result = await incubatorCollection.updateOne(query, updateDoc, options)
       res.send(result);
-    });
+  })
+
+  // add item
+  app.post('/addItem', async (req, res) => {
+
+    const newItem = req.body;
+
+    const result = await collection.insertOne(newItem);
+    res.send(result)
+})
+
 
     // // send data client to backend
     // app.post("/add-item", async (req, res) => {
