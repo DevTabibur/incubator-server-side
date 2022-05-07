@@ -29,7 +29,7 @@ async function run() {
       .db("IncubatorApp")
       .collection("blogs");
 
-    // get all blogs from backend
+    // get read all blogs from backend
     app.get("/blogs", async (req, res) => {
       const query = {};
       const cursor = incubatorBlogCollection.find(query);
@@ -37,7 +37,7 @@ async function run() {
       res.send(result);
     });
 
-    // get all data from backend
+    // get read all data from backend
     app.get("/data", async (req, res) => {
       const query = {};
       const cursor = incubatorCollection.find(query);
@@ -73,14 +73,13 @@ async function run() {
       res.send(result);
     });
 
-    // add item
-    //   app.post('/addItem', async (req, res) => {
+    //add new item API
+      app.post('/add-item', async (req, res) => {
+        const newItem = req.body;
+        const result = await incubatorCollection.insertOne(newItem);
+        res.send(result)
+    })
 
-    //     const newItem = req.body;
-
-    //     const result = await collection.insertOne(newItem);
-    //     res.send(result)
-    // })
 
     // delete data from mongodb
     app.delete("/data/:id", async (req, res) => {
