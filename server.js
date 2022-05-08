@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-
+const jwt = require('jsonwebtoken');
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -20,6 +20,30 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+
+function CheckJWTToken(req, res, next) {
+  const hederAuth = req.headers.authorization
+  if (!hederAuth) {
+      return res.status(401).send({ message: 'unauthorized access.try again' })
+  }
+  else {
+      const token = hederAuth.split(' ')[1]
+      console.log({ token });
+      jwt.verify(token, `${process.env.TOKEN}`, (err, decoded) => {
+
+          if (err) {
+              console.log(err);
+              return res.status(403).send({ message: 'forbidden access' })
+          }
+          console.log('decoded', decoded);
+          req.decoded = decoded;
+          next()
+      })
+  }
+  console.log(hederAuth, 'inside checkjwt');
+
+}
+
 
 async function run() {
   try {
@@ -77,12 +101,8 @@ async function run() {
 
     //UPDATE Quantity API ==> Increasing by user want
     app.put("/data/:id", async (req, res) => {
-
       const id = req.params.id;
-
-
       const updateProduct = req.body;
-
       const query = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updateDoc = {
@@ -102,9 +122,19 @@ async function run() {
     //add new item API
     app.post("/add-item", async (req, res) => {
       const newItem = req.body;
+      console.log('newItem', newItem);
       const result = await incubatorCollection.insertOne(newItem);
       res.send(result);
     });
+
+    // get read all new add-item from backend
+    // app.get("/add-item", async (req, res) => {
+    //   const query = {};
+    //   const cursor = incubatorCollection.find(query);
+    //   const users = await cursor.toArray();
+    //   res.send(users);
+    // });
+
 
     // delete data from mongodb
     app.delete("/data/:id", async (req, res) => {
@@ -121,6 +151,34 @@ async function run() {
       const result = await incubatorCollection.insertOne(newUser);
       res.send(result);
     });
+
+    //JWT
+    app.post('/signin', async (req, res) => {
+      const user = req.body;
+      console.log(req.body, 'user')
+
+      const getToken = jwt.sign(user, `${process.env.TOKEN}`, {
+          expiresIn: '1d'
+      });
+
+      res.send({ getToken });
+  })
+
+  // get items by email 
+  app.get('/singleItem', CheckJWTToken, async (req, res) => {
+      const decodedEmail = req.decoded.email
+      const email = req.query.email
+      if (email === decodedEmail) {
+          const query = { email: email }
+          const cursor = incubatorCollection.find(query)
+          const items = await cursor.toArray()
+          res.send(items)
+      }
+      else {
+          return res.status(403).send({ message: 'forbidden access' })
+      }
+  })
+
   } finally {
     //   await client.close();
   }
