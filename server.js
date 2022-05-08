@@ -57,7 +57,10 @@ async function run() {
     app.put("/data/:id", async (req, res) => {
       const id = req.params.id;
       const newQuantity = req.body;
+
       const deliver = newQuantity.quantity - 1;
+      console.log('deliver', deliver);
+
       const query = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updateDoc = {
