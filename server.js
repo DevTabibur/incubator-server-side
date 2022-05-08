@@ -165,8 +165,8 @@ async function run() {
 
   // get items by email 
   app.get('/singleItem', CheckJWTToken, async (req, res) => {
-      const decodedEmail = req.decoded.email
-      const email = req.query.email
+      const decodedEmail = req.decoded.email;
+      const email = req.query.email;
       if (email === decodedEmail) {
           const query = { email: email }
           const cursor = incubatorCollection.find(query)
