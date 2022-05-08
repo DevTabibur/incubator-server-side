@@ -54,12 +54,11 @@ async function run() {
     });
 
     //UPDATE Quantity API ==> decreasing by one
-    app.put("/data/:id", async (req, res) => {
+    app.put("/delivery/:id", async (req, res) => {
       const id = req.params.id;
       const newQuantity = req.body;
 
       const deliver = newQuantity.quantity - 1;
-      console.log('deliver', deliver);
 
       const query = { _id: ObjectId(id) };
       const options = { upsert: true };
@@ -76,13 +75,36 @@ async function run() {
       res.send(result);
     });
 
-    //add new item API
-      app.post('/add-item', async (req, res) => {
-        const newItem = req.body;
-        const result = await incubatorCollection.insertOne(newItem);
-        res.send(result)
-    })
+    //UPDATE Quantity API ==> Increasing by user want
+    app.put("/data/:id", async (req, res) => {
 
+      const id = req.params.id;
+
+
+      const updateProduct = req.body;
+
+      const query = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          quantity: updateProduct.newQuantity,
+        },
+      };
+
+      const result = await incubatorCollection.updateOne(
+        query,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    //add new item API
+    app.post("/add-item", async (req, res) => {
+      const newItem = req.body;
+      const result = await incubatorCollection.insertOne(newItem);
+      res.send(result);
+    });
 
     // delete data from mongodb
     app.delete("/data/:id", async (req, res) => {
