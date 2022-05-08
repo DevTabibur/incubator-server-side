@@ -29,7 +29,7 @@ function CheckJWTToken(req, res, next) {
   else {
       const token = hederAuth.split(' ')[1]
       // console.log({ token });
-      jwt.verify(token, `${process.env.TOKEN}`, (err, decoded) => {
+      jwt.verify(token, process.env.TOKEN, (err, decoded) => {
 
           if (err) {
               console.log(err);
@@ -134,9 +134,6 @@ async function run() {
       res.send(result);
     });
 
-    
-
-
     // delete data from mongodb
     app.delete("/data/:id", async (req, res) => {
       const id = req.params.id;
@@ -155,11 +152,9 @@ async function run() {
     //JWT
     app.post('/signin', async (req, res) => {
       const user = req.body;
-
-      const getToken = jwt.sign(user, `${process.env.TOKEN}`, {
+      const getToken = jwt.sign(user, process.env.TOKEN, {
           expiresIn: '1d'
       });
-
       res.send({ getToken });
   })
 
