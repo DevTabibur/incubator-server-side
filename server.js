@@ -28,19 +28,19 @@ function CheckJWTToken(req, res, next) {
   }
   else {
       const token = hederAuth.split(' ')[1]
-      console.log({ token });
+      // console.log({ token });
       jwt.verify(token, `${process.env.TOKEN}`, (err, decoded) => {
 
           if (err) {
               console.log(err);
               return res.status(403).send({ message: 'forbidden access' })
           }
-          console.log('decoded', decoded);
+          // console.log('decoded', decoded);
           req.decoded = decoded;
           next()
       })
   }
-  console.log(hederAuth, 'inside checkjwt');
+  // console.log(hederAuth, 'inside checkjwt');
 
 }
 
@@ -148,7 +148,6 @@ async function run() {
     // send data client to backend
     app.post("/data", async (req, res) => {
       const newUser = req.body;
-      console.log("adding new user", newUser);
       const result = await incubatorCollection.insertOne(newUser);
       res.send(result);
     });
@@ -156,7 +155,6 @@ async function run() {
     //JWT
     app.post('/signin', async (req, res) => {
       const user = req.body;
-      console.log(req.body, 'user')
 
       const getToken = jwt.sign(user, `${process.env.TOKEN}`, {
           expiresIn: '1d'
