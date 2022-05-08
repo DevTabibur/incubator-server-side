@@ -119,21 +119,22 @@ async function run() {
       res.send(result);
     });
 
+    // get read all new add-item from backend
+    app.get("/add-item", async (req, res) => {
+      const query = {};
+      const cursor = incubatorCollection.find(query);
+      const users = await cursor.toArray();
+      res.send(users);
+    });
+
     //add new item API
     app.post("/add-item", async (req, res) => {
       const newItem = req.body;
-      console.log('newItem', newItem);
       const result = await incubatorCollection.insertOne(newItem);
       res.send(result);
     });
 
-    // get read all new add-item from backend
-    // app.get("/add-item", async (req, res) => {
-    //   const query = {};
-    //   const cursor = incubatorCollection.find(query);
-    //   const users = await cursor.toArray();
-    //   res.send(users);
-    // });
+    
 
 
     // delete data from mongodb
